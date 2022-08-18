@@ -1,53 +1,37 @@
 import os 
 from os import walk
 
-def main():
-
-    folder = 'E:\\documents\\unisinos\\master\\research\\IMAGES_DEID_ANOTATIONS\\contexto_1_512__adjusts\\'
-    new_folder_mask = 'anotations\\'
-    new_folder_orig = 'renamed\\'
-
-    allImgs = []
-    maskImgs = []
-    normalImgs = []
-
-    for (dirpath, dirnames, filenames) in walk(folder):
-            allImgs.extend(filenames)
-            break
-
-    normalImgs = allImgs    
-
-    # for idx, img in enumerate(allImgs):
-    #     if img.find("Camada") != -1:
-    #         maskImgs.append(img)
-    #     elif img.find("Plano-de-Fundo") != -1:
-    #         normalImgs.append(img)
-
-    print("\n*********** PRINT INFOS ABOUT FILES ***************\n")
-    # print_listImgs(maskImgs)
-    # print("\n**********************************\n")
-    print_listImgs(normalImgs)
-
-    print("\n************ RENAMING FILES ****************\n")
-    # rename_files(new_folder_mask, maskImgs, folder)
-    # print("\n**********************************\n")
-    rename_files(new_folder_orig, normalImgs, folder)
-    
-
-def print_listImgs(imgList):
+def print_listImgs(imgList, folder):
     for idx, img in enumerate(imgList):
-        print(f'idx: {idx}, file name: {img}')
+        print(f'from: {folder} \t idx: {idx} \t file name: {img}')
 
-def rename_files(destFolder, imgList, srcFolder):
+def rename_files(rootFolder, subFolder, destFolder, imgList):
+    """
+        rootFolder: path of folder where was saved all images (bw and bins)
+        subFolder: name of subfolder inside `rootFolder`
+        destFolder: path of folder to save the new images, renamed
+        imgList: an array with the name of each image
+    """
     for idx, img in enumerate(imgList):
         new_name = ''
         if idx < 4:
             new_name = img[0:11] + '.png'
         else:
             new_name = img[0:10] + '.png'
-        os.rename(srcFolder + img, srcFolder + destFolder + new_name)
+        os.rename(rootFolder + subFolder + '\\' + img, rootFolder + subFolder + '\\' + destFolder + new_name)
         print(f'{idx} - file {img} renamed to {new_name} ...')
 
+def main():
+
+    root_folder = 'F:\\documents\\unisinos\\master\\!research-images\\IMAGES_DEID_WITH_ANOTATIONS - PS editions\\Exports-ROIs-square-512\\'
+
+    renamed_folders_out = ['image-bin-L1-renamed\\', 'image-bin-L2-renamed\\', 'image-bw-renamed\\']
+
+    for (dirpath, dirnames, filenames) in walk(root_folder):
+        for idx, subdir in enumerate(dirnames):
+            for (dirpath, dirnames, filenames) in walk(root_folder + subdir):
+                # print_listImgs(filenames, subdir) 
+                rename_files(root_folder, subdir, renamed_folders_out[idx], filenames)
 
 if __name__ == "__main__":
     main()
