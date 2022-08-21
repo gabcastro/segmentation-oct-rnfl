@@ -1,3 +1,6 @@
 __pycache__
 data/*
 venv
+
+contents/data*
+contents/*.zip

@@ -5,7 +5,7 @@ def print_listImgs(imgList, folder):
     for idx, img in enumerate(imgList):
         print(f'from: {folder} \t idx: {idx} \t file name: {img}')
 
-def rename_files(rootFolder, subFolder, destFolder, imgList):
+def rename_files(rootFolder, subFolder, destFolder, imgList: list):
     """
         rootFolder: path of folder where was saved all images (bw and bins)
         subFolder: name of subfolder inside `rootFolder`
@@ -13,25 +13,41 @@ def rename_files(rootFolder, subFolder, destFolder, imgList):
         imgList: an array with the name of each image
     """
     for idx, img in enumerate(imgList):
-        new_name = ''
+        newName = ''
         if idx < 4:
-            new_name = img[0:11] + '.png'
+            newName = img[0:11] + '.png'
         else:
-            new_name = img[0:10] + '.png'
-        os.rename(rootFolder + subFolder + '\\' + img, rootFolder + subFolder + '\\' + destFolder + new_name)
-        print(f'{idx} - file {img} renamed to {new_name} ...')
+            newName = img[0:10] + '.png'
+
+        oldNameFile = os.path.join(rootFolder, subFolder, img)
+        newNameFile = os.path.join(destFolder, newName)
+        # os.rename(oldNameFile, newNameFile)
+
+        # print(f'old name: {oldNameFile} / new: {newNameFile}')
+        print(f'{newName}')
 
 def main():
 
-    root_folder = 'F:\\documents\\unisinos\\master\\!research-images\\IMAGES_DEID_WITH_ANOTATIONS - PS editions\\Exports-ROIs-square-512\\'
+    rootFolder = '../contents/data_without_renamed_files'
 
-    renamed_folders_out = ['image-bin-L1-renamed\\', 'image-bin-L2-renamed\\', 'image-bw-renamed\\']
+    outFolders = [
+        '../contents/data_with_renamed_files/image-bin-L1-renamed', 
+        '../contents/zip_with_renamed_files/image-bin-L2-renamed', 
+        '../contents/zip_with_renamed_files/image-bw-renamed'
+    ]
 
-    for (dirpath, dirnames, filenames) in walk(root_folder):
-        for idx, subdir in enumerate(dirnames):
-            for (dirpath, dirnames, filenames) in walk(root_folder + subdir):
-                # print_listImgs(filenames, subdir) 
-                rename_files(root_folder, subdir, renamed_folders_out[idx], filenames)
+    for (dirpath, dirnames, filenames) in walk(rootFolder):
+        print(dirnames)
+        for idx, actualDir in enumerate(dirnames):
+            if (idx == 2):
+                fullActualDir = os.path.join(rootFolder, actualDir)
+                print(fullActualDir)
+                for (acturalRoot, actualDirs, actualFiles) in walk(fullActualDir):
+                    print(actualDir)
+                    # print(actualFiles)
+                    # print_listImgs(actualFiles, fullActualDir) 
+                    rename_files(rootFolder, actualDir, outFolders[idx], actualFiles)
+        break
 
 if __name__ == "__main__":
     main()

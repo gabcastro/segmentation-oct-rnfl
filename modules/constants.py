@@ -1,4 +1,4 @@
-ROOT_DATA_DIR = '../data/'
+ROOT_DATA_DIR = '../contents/data-L2/'
 
 TRAIN_DIR = f'{ROOT_DATA_DIR}train'
 TRAIN_ANNOTATION_DIR = f'{ROOT_DATA_DIR}train_annotation'
@@ -8,4 +8,3 @@ VAL_ANNOTATION_DIR = f'{ROOT_DATA_DIR}validation_annotation'
 
 TEST_DIR = f'{ROOT_DATA_DIR}test'
 TEST_ANNOTATION_DIR = f'{ROOT_DATA_DIR}test_annotation'
-
