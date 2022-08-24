@@ -24,7 +24,6 @@ def rename_files(rootFolder, subFolder, destFolder, imgList: list):
         # os.rename(oldNameFile, newNameFile)
 
         # print(f'old name: {oldNameFile} / new: {newNameFile}')
-        print(f'{newName}')
 
 def main():
 
