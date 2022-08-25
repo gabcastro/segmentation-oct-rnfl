@@ -25,14 +25,26 @@ def main():
 
     util = utility.Utility
 
-    # aug = augmentation.Augmentation()
+    aug = augmentation.Augmentation()
+
+    BACKBONE = 'resnet34'
+    BATCH_SIZE = 8
+    CLASSES = ['layer_1']
+    EPOCHS = 1
+    LR = 0.0001
+    preprocess_input = sm.get_preprocessing(BACKBONE)
+
+    test_dataset = ds.Dataset(
+        x_test_dir, 
+        y_test_dir, 
+        classes=CLASSES, 
+        augmentation=aug.get_validation_augmentation(),
+        preprocessing=aug.get_preprocessing(preprocess_input),
+    )
+
+    test_dataloader = dl.Dataloder(test_dataset, batch_size=1, shuffle=False)
     
-    # BACKBONE = 'resnet34'
-    # BATCH_SIZE = 8
-    # CLASSES = ['layer_1']
-    # EPOCHS = 1
-    # LR = 0.0001
-    # preprocess_input = sm.get_preprocessing(BACKBONE)
+    test_dataloader[0][0]
 
     # n_classes = 1 if len(CLASSES) == 1 else (len(CLASSES) + 1)  # case for binary and multiclass segmentation
     # activation = 'sigmoid' if n_classes == 1 else 'softmax'

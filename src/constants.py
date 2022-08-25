@@ -1,4 +1,4 @@
-ROOT_DATA_DIR = '../contents/data-L2/'
+ROOT_DATA_DIR = '../data/data-L2/'
 
 TRAIN_DIR = f'{ROOT_DATA_DIR}train'
 TRAIN_ANNOTATION_DIR = f'{ROOT_DATA_DIR}train_annotation'
