@@ -9,8 +9,8 @@ class ZipOps:
         """Extract a file to a specific directory
 
         Args:
-            fromDir: absolute path of file
-            toDir: path where the file will be extract
+            fromDir: full path of file
+            toDir: full path where the file will be extract
         """ 
 
         try:
