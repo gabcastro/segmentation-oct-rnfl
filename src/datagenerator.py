@@ -2,6 +2,18 @@ from keras.preprocessing.image import ImageDataGenerator
 
 class DataGenerator:
     """Expand the image training data, using transformations
+    On contructor must be passed a dictonary with the transformations, e.g.:
+
+    ```python
+    data_gen_args = dict(
+        width_shift_range=0.05,
+        height_shift_range=0.05,
+        shear_range=0.1,
+        zoom_range=[0.7,1],
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
+    ```
     """
 
     def __init__(self, data_gen_args: dict):
@@ -21,22 +33,12 @@ class DataGenerator:
         Args:
             directory: a directory that contains the folders with BW and mask images
             folders: used as 'classes' in `train_datagen.flow_from_directory`
-                expect an array with two values
-                first element for image generator 
+                expect an array with two values: first element for image generator; 
                 second element for mask generator
             dirToSave: directory where the generator will save every transformation
             batch_size: number of batchs
             target_size: Tuple of integers `(height, width)`
         """
-        
-        # data_gen_args = dict(
-        #     width_shift_range=0.05,
-        #     height_shift_range=0.05,
-        #     shear_range=0.1,
-        #     zoom_range=[0.7,1],
-        #     horizontal_flip=True,
-        #     fill_mode='nearest'
-        # )
 
         train_datagen = ImageDataGenerator(**self.data_gen_args)
         mask_datagen = ImageDataGenerator(**self.data_gen_args)

@@ -1,7 +1,9 @@
 import tensorflow as tf
 from tensorflow.python.keras import backend as keras
 
-class Metrics:
+class Compile:
+    """Compute all metrics and losses used during fit model"""
+    
     def __init__(self):
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
         self.loss = self.dice_coef_loss
