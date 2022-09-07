@@ -4,17 +4,28 @@ from datagenerator import DataGenerator
 import tensorflow as tf
 
 def main():
-    datagen = DataGenerator()
-    train_gen = datagen.generetor(
-        directory='', 
-        folders=['originals', 'masks'], 
-        dirToSave='')
+    data_gen_args = dict(
+        width_shift_range=0.05,
+        height_shift_range=0.05,
+        shear_range=0.1,
+        zoom_range=[0.7,1],
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
 
-    input = tf.keras.Input(shape=(512, 512, 1))
+    datagen = DataGenerator(data_gen_args=data_gen_args,
+                            directory='../data/data-gen-L1/train',
+                            folders=['grays', 'masks', 'augmentations'])
+    transformations = datagen()
+    
+    shape=(512, 512, 1)
+    input = tf.keras.Input(shape=shape)
 
     unet = Unet()
     unet(input)
-    unet.summary()
+    unet.model(input_shape=shape).summary()
+
+    print('total trainable weights from unet: ', len(unet.trainable_weights))
     
     compile_methods = Compile()
 
@@ -25,7 +36,7 @@ def main():
     )
 
     history = unet.fit(
-        x=train_gen,
+        x=transformations,
         steps_per_epoch=100,
         batch_size=8,
         epochs=15,

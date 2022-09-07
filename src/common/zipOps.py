@@ -15,7 +15,7 @@ class ZipOps:
 
         try:
             zipContent = ZipFile(fromDir)
-            zipContent.extractAll(toDir)
+            zipContent.extractall(toDir)
             zipContent.close()
         except BadZipFile as e:
             raise error(f'There are some problem with the zip, check the message: {e}')

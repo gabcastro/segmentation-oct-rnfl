@@ -1,3 +1,4 @@
+import os
 from keras.preprocessing.image import ImageDataGenerator
 
 class DataGenerator:
@@ -14,56 +15,65 @@ class DataGenerator:
         fill_mode='nearest'
     )
     ```
-    """
 
-    def __init__(self, data_gen_args: dict):
-        self.data_gen_args = data_gen_args
-
-    def generetor(self, 
-                  directory, 
-                  folders, 
-                  dirToSave,
-                  batch_size = 8,
-                  target_size = (512, 512)):
-        """Generate images with some transformations, like:
+    Generate images with some transformations, like:
             - shift (width and height)
             - zoom
             - horizontal flip
+    """
 
+    def __init__(self, 
+                directory,
+                folders,
+                data_gen_args: dict,
+                batch_size = 8,
+                target_size = (512, 512)):
+        """
+        
         Args:
             directory: a directory that contains the folders with BW and mask images
             folders: used as 'classes' in `train_datagen.flow_from_directory`
-                expect an array with two values: first element for image generator; 
-                second element for mask generator
-            dirToSave: directory where the generator will save every transformation
+                expect an array with name of three folders: images in gray scale; 
+                masks; and where will be save the transformations 
             batch_size: number of batchs
             target_size: Tuple of integers `(height, width)`
         """
+        self.data_gen_args = data_gen_args
+        
+        self.dirRoot = directory
+        self.folderGray = folders[0]
+        self.folderMasks = folders[1]
+        self.folderAugmentation = os.path.join(self.dirRoot, folders[2])
+
+        self.batch_size = batch_size
+        self.target_size = target_size
+
+    def __call__(self):
 
         train_datagen = ImageDataGenerator(**self.data_gen_args)
         mask_datagen = ImageDataGenerator(**self.data_gen_args)
  
         image_generator = train_datagen.flow_from_directory(
-            directory = directory,
-            classes = [folders[0]],
+            directory = self.dirRoot,
+            classes = [self.folderGray],
             class_mode = None,
             color_mode = 'grayscale',
-            target_size = target_size,
-            batch_size = batch_size,
+            target_size = self.target_size,
+            batch_size = self.batch_size,
             seed = 1,
-            save_to_dir = dirToSave,
+            save_to_dir = self.folderAugmentation,
             save_prefix = 'image'
         )
 
         mask_generator = mask_datagen.flow_from_directory(
-            directory = directory,
-            classes = [folders[1]],
+            directory = self.dirRoot,
+            classes = [self.folderMasks],
             class_mode = None,
             color_mode = 'grayscale',
-            target_size = target_size,
-            batch_size = batch_size,
+            target_size = self.target_size,
+            batch_size = self.batch_size,
             seed = 1,
-            save_to_dir = dirToSave,
+            save_to_dir = self.folderAugmentation,
             save_prefix = 'mask'
         )
 

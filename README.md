@@ -1,28 +1,22 @@
-# segmentation-oct-rnfl
+# Research about DL with ophthalmology
 
-this repo was created to structure some scripts, where is separate by different responsibilities
+Contains a several group of algs used to segment parts of retina. For now, the used of archtectures like U-Net are under test and improvements, for leverage results under some metrics.
 
-`modules`
-- augmentation.py: contain a class to use albumentations lib
-- dataloader.py: load data from dataset
-- dataset.py: read images and apply some methods to creat the dataset
+# Repo structure
 
-`others`: contains some files to execute some operations, like rename files
+This repo was created to structure some scripts, where is separate by different responsibilities. 
 
-## to-do:
+# Venv environment
 
-    create a script to create a folder "data" with all subfolders used during the process
-        - data
-            - test
-            - test_annotation
-            - train
-            - train_annotation
-            - validation
-            - validation_annotation
+- `python3 -m venv venv` → creates a virtual environment
+- `venv\Scripts\activate.bat` → activates the environment (windows)
+- `source venv/bin/activate` → activates the environment (mac)
+- `pip install -r requirements.txt` → for install all dependences
+- `pip freeze > requirements.txt` → when the development was to finish
 
-some zips contais the images used in some trains (folder zips)
+# TODOs
 
-## dependencies
+# Dependencies
 
 - TensorFlow
 - Keras
