@@ -8,11 +8,14 @@ class EncoderBlock(Layer):
 
         self.cnn1 = CNNBlock(channel)
         self.cnn2 = CNNBlock(channel)
+
         self.pooling = MaxPooling2D()
 
         self.e = None
 
-    def call(self, input_tensor, training=False):
+    def call(self, input_tensor, dropout = 0, training=False):
         x = self.cnn1(input_tensor, training=training)
         self.e = self.cnn2(x, training=training)
+        if dropout > 0:
+            self.e = Dropout(dropout)(self.e, training=training)
         return self.pooling(self.e)

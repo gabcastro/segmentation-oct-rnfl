@@ -16,7 +16,7 @@ def main():
     datagen = DataGenerator(data_gen_args=data_gen_args,
                             directory='../data/data-gen-L1/train',
                             folders=['grays', 'masks', 'augmentations'])
-    transformations = datagen()
+    trasnformations = datagen()
     
     shape=(512, 512, 1)
     input = tf.keras.Input(shape=shape)
@@ -36,7 +36,7 @@ def main():
     )
 
     history = unet.fit(
-        x=transformations,
+        x=datagen.adjustedDataTrain(trasnformations),
         steps_per_epoch=100,
         batch_size=8,
         epochs=15,

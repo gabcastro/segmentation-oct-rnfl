@@ -13,6 +13,6 @@ class DecoderBlock(Layer):
 
     def call(self, input_tensor, concat_tensor, training=False):
         x = self.upsampling(input_tensor)
-        x = concatenate([x, concat_tensor])
+        x = concatenate([concat_tensor, x], axis=3)
         x = self.cnn1(x, training=training)
         return self.cnn2(x, training=training)

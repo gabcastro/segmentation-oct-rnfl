@@ -38,9 +38,9 @@ class Unet(tf.keras.Model):
         
     def call(self, inputs):
         e1 = self.encoder1(inputs)
-        e2 = self.encoder2(e1)
-        e3 = self.encoder3(e2)
-        e4 = self.encoder4(e3)
+        e2 = self.encoder2(e1, 0.2)
+        e3 = self.encoder3(e2, 0.3)
+        e4 = self.encoder4(e3, 0.7)
 
         b = self.bottleneck(e4)
 
