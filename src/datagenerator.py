@@ -1,4 +1,8 @@
 import os
+import cv2
+import numpy as np
+import skimage.io as io
+import skimage.transform as trans
 from keras.preprocessing.image import ImageDataGenerator
 
 class DataGenerator:
@@ -43,7 +47,7 @@ class DataGenerator:
         self.dirRoot = directory
         self.folderGray = folders[0]
         self.folderMasks = folders[1]
-        self.folderAugmentation = os.path.join(self.dirRoot, folders[2])
+        self.fullDirAugmentation = os.path.join(self.dirRoot, folders[2])
 
         self.batch_size = batch_size
         self.target_size = target_size
@@ -61,7 +65,7 @@ class DataGenerator:
             target_size = self.target_size,
             batch_size = self.batch_size,
             seed = 1,
-            save_to_dir = self.folderAugmentation,
+            save_to_dir = self.fullDirAugmentation,
             save_prefix = 'image'
         )
 
@@ -73,7 +77,7 @@ class DataGenerator:
             target_size = self.target_size,
             batch_size = self.batch_size,
             seed = 1,
-            save_to_dir = self.folderAugmentation,
+            save_to_dir = self.fullDirAugmentation,
             save_prefix = 'mask'
         )
 
@@ -93,3 +97,15 @@ class DataGenerator:
         for (img, mask) in train_gen:
             img, mask = self.adjustData(img, mask)
             yield (img, mask)
+
+    def dataTestGen(self, 
+                    content_imgs,
+                    target_size = (512, 512), 
+                    flag_multi_class = False):
+        """Create a new datagenerator for test"""
+        for i in content_imgs:
+            img = io.imread(i, as_gray = True)
+            img = trans.resize(img, target_size)
+            img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img 
+            img = np.reshape(img, (1,) + img.shape)
+            yield img

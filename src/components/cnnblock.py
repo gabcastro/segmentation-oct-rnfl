@@ -21,8 +21,8 @@ class CNNBlock(Layer):
         self.conv = Conv2D(filters=out_channel, kernel_size=kernel_size, **params)
         self.bn = BatchNormalization()
 
-    def call(self, input_tensor, training=False):
+    def call(self, input_tensor):
         x = self.conv(input_tensor)
-        x = self.bn(x, training=training)
+        x = self.bn(x)
         x = tf.nn.relu(x)
         return x

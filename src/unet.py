@@ -56,3 +56,10 @@ class Unet(tf.keras.Model):
     def model(self, input_shape):
         x = tf.keras.Input(shape=input_shape)
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
+
+    def modelcheckpoint(self, filepath):
+        return tf.keras.callbacks.ModelCheckpoint(
+            filepath=filepath,
+            verbose=1,
+            save_best_only=True
+        )

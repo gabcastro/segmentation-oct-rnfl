@@ -11,8 +11,8 @@ class DecoderBlock(Layer):
         self.cnn1 = CNNBlock(channel)
         self.cnn2 = CNNBlock(channel)
 
-    def call(self, input_tensor, concat_tensor, training=False):
+    def call(self, input_tensor, concat_tensor):
         x = self.upsampling(input_tensor)
         x = concatenate([concat_tensor, x], axis=3)
-        x = self.cnn1(x, training=training)
-        return self.cnn2(x, training=training)
+        x = self.cnn1(x)
+        return self.cnn2(x)

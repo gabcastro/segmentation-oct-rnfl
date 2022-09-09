@@ -13,9 +13,9 @@ class EncoderBlock(Layer):
 
         self.e = None
 
-    def call(self, input_tensor, dropout = 0, training=False):
-        x = self.cnn1(input_tensor, training=training)
-        self.e = self.cnn2(x, training=training)
+    def call(self, input_tensor, dropout = 0):
+        x = self.cnn1(input_tensor)
+        self.e = self.cnn2(x)
         if dropout > 0:
-            self.e = Dropout(dropout)(self.e, training=training)
+            self.e = Dropout(dropout)(self.e)
         return self.pooling(self.e)
