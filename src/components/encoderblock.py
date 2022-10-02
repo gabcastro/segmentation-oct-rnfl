@@ -11,11 +11,10 @@ class EncoderBlock(Layer):
 
         self.pooling = MaxPooling2D()
 
-        self.e = None
-
     def call(self, input_tensor, dropout = 0):
         x = self.cnn1(input_tensor)
-        self.e = self.cnn2(x)
+        x = self.cnn2(x)
         if dropout > 0:
-            self.e = Dropout(dropout)(self.e)
-        return self.pooling(self.e)
+            x = Dropout(dropout)(x)
+        y = self.pooling(x)
+        return x, y

@@ -1,0 +1,3 @@
+v1: first version, using flow_from_directory (Deprecated) and the follow folder structure:
+
+v2: using tf.keras.utils.image_dataset_from_directory, with the follow structure:

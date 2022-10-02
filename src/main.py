@@ -1,3 +1,4 @@
+from gc import callbacks
 import os
 import tensorflow as tf
 from datetime import datetime
@@ -13,6 +14,9 @@ sys.path.insert(1, '/common')
 from common.helperviz import Utility
 
 def main():
+    load_weights = False
+    history = None
+
     data_gen_args = dict(
         width_shift_range=0.05,
         height_shift_range=0.05,
@@ -40,45 +44,57 @@ def main():
 
     unet.compile(
         optimizer=compile_methods.optimizer,
-        loss=compile_methods.loss,
+        loss="binary_crossentropy",
         metrics=compile_methods.all_metrics
     )
 
-    filepath = f'./bestmodel__{datetime.now().strftime("%Y%m%d-%H%M%S")}.hdf5'
-    model_checkpoint = unet.modelcheckpoint(filepath)
+    callbacks = [
+        tf.keras.callbacks.ModelCheckpoint(
+            filepath='best_model.h5', 
+            save_weights_only=True, 
+            save_best_only=True, 
+            verbose=1,
+            monitor='loss'
+        ),
+        # tf.keras.callbacks.ReduceLROnPlateau()
+    ]
 
-    plateau = tf.keras.callbacks.ReduceLROnPlateau()
-
+    # if load_weights:
+    #     unet.load_weights('./tmp/model/')
+    #     unet.train_on_batch(x=datagen.adjustedDataTrain(trasnformations))
+    # else:
     history = unet.fit(
         x=datagen.adjustedDataTrain(trasnformations),
-        steps_per_epoch=5,
+        steps_per_epoch=2,
         batch_size=8,
         epochs=1,
         verbose=1,
-        callbacks=[model_checkpoint, plateau]
+        callbacks=callbacks
     )
 
-    viz = Utility()
+    # unet.save_weights(filepath='./tmp/model/', save_format='tf', overwrite=True)
 
-    viz.visualize_metrics(metrics=['dice_coef', 'soft_dice_coef'], 
-                          loss=['loss'],
-                          model_history=history)
+    # viz = Utility()
+
+    # viz.visualize_metrics(metrics=['dice_coef', 'soft_dice_coef'], 
+    #                       loss=['loss'],
+    #                       model_history=history)
 
 
-    dir_test_imgs = '../data/data-gen-L1/test/grays'
-    test_imgs = [os.path.join(dir_test_imgs, f) for f in os.listdir(dir_test_imgs) if os.path.isfile(os.path.join(dir_test_imgs, f))]
+    # dir_test_imgs = '../data/data-gen-L1/test/grays'
+    # test_imgs = [os.path.join(dir_test_imgs, f) for f in os.listdir(dir_test_imgs) if os.path.isfile(os.path.join(dir_test_imgs, f))]
 
-    datagentest = datagen.dataTestGen(test_imgs)
+    # datagentest = datagen.dataTestGen(test_imgs)
 
-    pred_result = unet.predict(x=datagentest,
-                               batch_size=len(test_imgs),
-                               verbose=2)
+    # pred_result = unet.predict(x=datagentest,
+    #                            batch_size=len(test_imgs),
+    #                            verbose=2)
 
-    eval = Evaluate(directory='../data/data-gen-L1/test', 
-                    folders=['grays', 'masks', 'predicted'])
-    eval.saveimgs(model_predict=pred_result)
-    eval.metric(pred_result)
-    eval.summary()
+    # eval = Evaluate(directory='../data/data-gen-L1/test', 
+    #                 folders=['grays', 'masks', 'predicted'])
+    # eval.saveimgs(model_predict=pred_result)
+    # eval.metric(pred_result)
+    # eval.summary()
 
 if __name__ == "__main__":
     main()

@@ -37,17 +37,17 @@ class Unet(tf.keras.Model):
         self.out = Conv2D(1, 1, activation='sigmoid')
         
     def call(self, inputs):
-        e1 = self.encoder1(inputs)
-        e2 = self.encoder2(e1, 0.2)
-        e3 = self.encoder3(e2, 0.3)
-        e4 = self.encoder4(e3, 0.7)
+        e1x, e1y = self.encoder1(inputs)
+        e2x, e2y = self.encoder2(e1y, 0.2)
+        e3x, e3y = self.encoder3(e2y, 0.3)
+        e4x, e4y = self.encoder4(e3y, 0.7)
 
-        b = self.bottleneck(e4)
+        b = self.bottleneck(e4y)
 
-        d1 = self.decoder1(b, self.encoder4.e)
-        d2 = self.decoder2(d1, self.encoder3.e)
-        d3 = self.decoder3(d2, self.encoder2.e)
-        d4 = self.decoder4(d3, self.encoder1.e)
+        d1 = self.decoder1(b, e4x)
+        d2 = self.decoder2(d1, e3x)
+        d3 = self.decoder3(d2, e2x)
+        d4 = self.decoder4(d3, e1x)
 
         o = self.out(d4)
 
@@ -61,5 +61,6 @@ class Unet(tf.keras.Model):
         return tf.keras.callbacks.ModelCheckpoint(
             filepath=filepath,
             verbose=1,
-            save_best_only=True
+            save_best_only=True,
+            monitor="dice_coef"
         )
