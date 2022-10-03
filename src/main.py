@@ -1,11 +1,11 @@
-from gc import callbacks
 import os
 import tensorflow as tf
 from datetime import datetime
 
 from unet import Unet
 from compile import Compile
-from datagenerator import DataGenerator
+from datagenerator_v1 import DataGenerator
+from datagenerator_v2 import DataGenerator
 from evaluate import Evaluate
 
 import sys
@@ -26,51 +26,51 @@ def main():
         fill_mode='nearest'
     )
 
-    datagen = DataGenerator(data_gen_args=data_gen_args,
-                            directory='../data/data-gen-L1/train',
-                            folders=['grays', 'masks', 'augmentations'])
-    trasnformations = datagen()
+    datagen = DataGenerator(
+        data_imgs_dir='../data/v2/L1/train_val_imgs',
+        data_masks_dir='../data/v2/L1/train_val_masks')
+    datagen()
+
+    # shape=(512, 512, 1)
+    # input = tf.keras.Input(shape=shape)
+
+    # unet = Unet()
+    # unet(input)
+    # unet.model(input_shape=shape).summary()
+
+    # print('total trainable weights from unet: ', len(unet.trainable_weights))
     
-    shape=(512, 512, 1)
-    input = tf.keras.Input(shape=shape)
+    # compile_methods = Compile()
 
-    unet = Unet()
-    unet(input)
-    unet.model(input_shape=shape).summary()
+    # unet.compile(
+    #     optimizer=compile_methods.optimizer,
+    #     loss="binary_crossentropy",
+    #     metrics=compile_methods.all_metrics
+    # )
 
-    print('total trainable weights from unet: ', len(unet.trainable_weights))
-    
-    compile_methods = Compile()
+    # callbacks = [
+    #     tf.keras.callbacks.ModelCheckpoint(
+    #         filepath='best_model.h5', 
+    #         save_weights_only=True, 
+    #         save_best_only=True, 
+    #         verbose=1,
+    #         monitor='loss'
+    #     ),
+    #     # tf.keras.callbacks.ReduceLROnPlateau()
+    # ]
 
-    unet.compile(
-        optimizer=compile_methods.optimizer,
-        loss="binary_crossentropy",
-        metrics=compile_methods.all_metrics
-    )
-
-    callbacks = [
-        tf.keras.callbacks.ModelCheckpoint(
-            filepath='best_model.h5', 
-            save_weights_only=True, 
-            save_best_only=True, 
-            verbose=1,
-            monitor='loss'
-        ),
-        # tf.keras.callbacks.ReduceLROnPlateau()
-    ]
-
-    # if load_weights:
-    #     unet.load_weights('./tmp/model/')
-    #     unet.train_on_batch(x=datagen.adjustedDataTrain(trasnformations))
-    # else:
-    history = unet.fit(
-        x=datagen.adjustedDataTrain(trasnformations),
-        steps_per_epoch=2,
-        batch_size=8,
-        epochs=1,
-        verbose=1,
-        callbacks=callbacks
-    )
+    # # if load_weights:
+    # #     unet.load_weights('./tmp/model/')
+    # #     unet.train_on_batch(x=datagen.adjustedDataTrain(trasnformations))
+    # # else:
+    # history = unet.fit(
+    #     x=datagen.adjustedDataTrain(trasnformations),
+    #     steps_per_epoch=2,
+    #     batch_size=8,
+    #     epochs=1,
+    #     verbose=1,
+    #     callbacks=callbacks
+    # )
 
     # unet.save_weights(filepath='./tmp/model/', save_format='tf', overwrite=True)
 
