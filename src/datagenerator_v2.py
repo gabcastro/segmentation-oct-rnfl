@@ -1,7 +1,6 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras import layers
-from tensorflow.keras.models import *
 
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -11,7 +10,7 @@ class DataGenerator:
     def __init__(self, 
                 data_imgs_dir,
                 data_masks_dir,
-                batch_size = 8,
+                batch_size = 32,
                 target_size = (512, 512)):
         
         self.data_imgs_dir = data_imgs_dir
@@ -20,7 +19,7 @@ class DataGenerator:
         self.batch_size = batch_size
         self.target_size = target_size
 
-        self.data_augmentation = Sequencial([
+        self.data_augmentation = tf.keras.Sequential([
             layers.RandomFlip("horizontal"),
             layers.RandomRotation(0.2),
             layers.RandomZoom(.2, .2),
@@ -35,10 +34,12 @@ class DataGenerator:
         train_ds_masks = self.normalization_ds(train_ds_masks)
         val_ds_masks = self.normalization_ds(val_ds_masks)
 
-        train_ds_imgs = self.prepere(train_ds_imgs, shuffle=True, augment=True)
+        train_ds_imgs = self.prepere(train_ds_imgs, shuffle=False, augment=True)
         val_ds_imgs = self.prepere(val_ds_imgs)
-        train_ds_masks = self.prepere(train_ds_masks, shuffle=True, augment=True)
+        train_ds_masks = self.prepere(train_ds_masks, shuffle=False, augment=True)
         val_ds_masks = self.prepere(val_ds_masks)
+
+        return train_ds_imgs, val_ds_imgs, train_ds_masks, val_ds_masks
 
     def prepere(self, ds, shuffle=False, augment=False):
         """Config ds to use data augmentation and performance on I/O ops
@@ -53,7 +54,7 @@ class DataGenerator:
             ds = ds.shuffle(1000)
 
         # Batch all ds
-        ds = ds.batch(self.batch_size)
+        # ds = ds.batch(self.batch_size)    
 
         # Use data augmentation only on the training set
         if augment:

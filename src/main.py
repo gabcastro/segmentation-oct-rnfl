@@ -1,4 +1,6 @@
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 from datetime import datetime
 
@@ -29,18 +31,22 @@ def main():
     datagen = DataGenerator(
         data_imgs_dir='../data/v2/L1/train_val_imgs',
         data_masks_dir='../data/v2/L1/train_val_masks')
-    datagen()
+    train_ds_imgs, val_ds_imgs, train_ds_masks, val_ds_masks = datagen()
+ 
+    shape=(512, 512, 1)
+    input = tf.keras.Input(shape=shape)
 
-    # shape=(512, 512, 1)
-    # input = tf.keras.Input(shape=shape)
-
-    # unet = Unet()
-    # unet(input)
+    unet = Unet()
+    unet(input)
     # unet.model(input_shape=shape).summary()
 
     # print('total trainable weights from unet: ', len(unet.trainable_weights))
     
     # compile_methods = Compile()
+
+    unet.compile(optimizer='adam',
+              loss=tf.keras.losses.BinaryCrossentropy(),
+              metrics=['accuracy'])
 
     # unet.compile(
     #     optimizer=compile_methods.optimizer,
@@ -63,14 +69,14 @@ def main():
     # #     unet.load_weights('./tmp/model/')
     # #     unet.train_on_batch(x=datagen.adjustedDataTrain(trasnformations))
     # # else:
-    # history = unet.fit(
-    #     x=datagen.adjustedDataTrain(trasnformations),
-    #     steps_per_epoch=2,
-    #     batch_size=8,
-    #     epochs=1,
-    #     verbose=1,
-    #     callbacks=callbacks
-    # )
+    history = unet.fit(
+        x=(train_ds_imgs, train_ds_masks),
+        validation_data=(val_ds_imgs, val_ds_masks),
+        steps_per_epoch=2,
+        batch_size=8,
+        epochs=1,
+        verbose=1
+    )
 
     # unet.save_weights(filepath='./tmp/model/', save_format='tf', overwrite=True)
 
