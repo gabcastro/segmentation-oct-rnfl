@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import backend as K
+from keras import backend as K
 
 class Compile:
     """Compute all metrics and losses used during fit model"""

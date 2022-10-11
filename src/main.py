@@ -1,106 +1,42 @@
-import os
-import matplotlib.pyplot as plt
+import cv2
 import numpy as np
-import tensorflow as tf
-from datetime import datetime
 
+from numpy import dtype
+from dataset import Dataset
 from unet import Unet
 from compile import Compile
-from datagenerator_v1 import DataGenerator
-from datagenerator_v2 import DataGenerator
-from evaluate import Evaluate
 
-import sys
-sys.path.insert(1, '/common')
-
-from common.helperviz import Utility
+import tensorflow as tf
 
 def main():
-    load_weights = False
-    history = None
 
-    data_gen_args = dict(
-        width_shift_range=0.05,
-        height_shift_range=0.05,
-        shear_range=0.1,
-        zoom_range=[0.7,1],
-        horizontal_flip=True,
-        fill_mode='nearest'
-    )
+    ds = Dataset('../data/v2/L1/train')
+    ds_train = ds.create_dataset()
 
-    datagen = DataGenerator(
-        data_imgs_dir='../data/v2/L1/train_val_imgs',
-        data_masks_dir='../data/v2/L1/train_val_masks')
-    train_ds_imgs, val_ds_imgs, train_ds_masks, val_ds_masks = datagen()
- 
     shape=(512, 512, 1)
     input = tf.keras.Input(shape=shape)
 
     unet = Unet()
     unet(input)
-    # unet.model(input_shape=shape).summary()
 
-    # print('total trainable weights from unet: ', len(unet.trainable_weights))
-    
-    # compile_methods = Compile()
+    unet.model(input_shape=shape).summary()
 
-    unet.compile(optimizer='adam',
-              loss=tf.keras.losses.BinaryCrossentropy(),
-              metrics=['accuracy'])
+    compile_methods = Compile()
 
-    # unet.compile(
-    #     optimizer=compile_methods.optimizer,
-    #     loss="binary_crossentropy",
-    #     metrics=compile_methods.all_metrics
-    # )
-
-    # callbacks = [
-    #     tf.keras.callbacks.ModelCheckpoint(
-    #         filepath='best_model.h5', 
-    #         save_weights_only=True, 
-    #         save_best_only=True, 
-    #         verbose=1,
-    #         monitor='loss'
-    #     ),
-    #     # tf.keras.callbacks.ReduceLROnPlateau()
-    # ]
-
-    # # if load_weights:
-    # #     unet.load_weights('./tmp/model/')
-    # #     unet.train_on_batch(x=datagen.adjustedDataTrain(trasnformations))
-    # # else:
-    history = unet.fit(
-        x=(train_ds_imgs, train_ds_masks),
-        validation_data=(val_ds_imgs, val_ds_masks),
-        steps_per_epoch=2,
-        batch_size=8,
-        epochs=1,
-        verbose=1
+    unet.compile(
+        optimizer=compile_methods.optimizer,
+        loss=compile_methods.loss,
+        metrics=compile_methods.all_metrics
     )
 
-    # unet.save_weights(filepath='./tmp/model/', save_format='tf', overwrite=True)
-
-    # viz = Utility()
-
-    # viz.visualize_metrics(metrics=['dice_coef', 'soft_dice_coef'], 
-    #                       loss=['loss'],
-    #                       model_history=history)
-
-
-    # dir_test_imgs = '../data/data-gen-L1/test/grays'
-    # test_imgs = [os.path.join(dir_test_imgs, f) for f in os.listdir(dir_test_imgs) if os.path.isfile(os.path.join(dir_test_imgs, f))]
-
-    # datagentest = datagen.dataTestGen(test_imgs)
-
-    # pred_result = unet.predict(x=datagentest,
-    #                            batch_size=len(test_imgs),
-    #                            verbose=2)
-
-    # eval = Evaluate(directory='../data/data-gen-L1/test', 
-    #                 folders=['grays', 'masks', 'predicted'])
-    # eval.saveimgs(model_predict=pred_result)
-    # eval.metric(pred_result)
-    # eval.summary()
+    history = unet.fit(
+        x=ds_train,
+        steps_per_epoch=len(ds_train),
+        epochs=1,
+        #validation_data=ds_val_zip,
+        #validation_steps=len(ds_val_zip),
+        verbose=1
+    )
 
 if __name__ == "__main__":
     main()

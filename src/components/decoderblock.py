@@ -1,5 +1,4 @@
-import tensorflow as tf
-from tensorflow.keras.layers import *
+from keras.layers import *
 
 from .cnnblock import CNNBlock
 

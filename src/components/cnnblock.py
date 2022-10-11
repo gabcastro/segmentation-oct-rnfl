@@ -1,7 +1,7 @@
 import tensorflow as tf
-from tensorflow.keras.optimizers import *
-from tensorflow.keras.models import *
-from tensorflow.keras.layers import *
+from keras.optimizers import *
+from keras.models import *
+from keras.layers import *
 
 class CNNBlock(Layer):
     def __init__(self, out_channel, params_args = None, kernel_size=3):
