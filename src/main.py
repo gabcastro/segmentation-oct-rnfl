@@ -1,17 +1,24 @@
-import cv2
-import numpy as np
-
-from numpy import dtype
 from dataset import Dataset
 from unet import Unet
 from compile import Compile
 
 import tensorflow as tf
+from keras.models import load_model
+
+import sys
+sys.path.insert(1, '/components')
+
+from components.encoderblock import EncoderBlock
+from components.cnnblock import CNNBlock
+from components.decoderblock import DecoderBlock
 
 def main():
 
     ds = Dataset('../data/v2/L1/train')
-    ds_train = ds.create_dataset()
+    ds_train = ds.create_dataset(augment=True)
+
+    ds = Dataset('../data/v2/L1/validation')
+    ds_val = ds.create_dataset()
 
     shape=(512, 512, 1)
     input = tf.keras.Input(shape=shape)
@@ -33,9 +40,24 @@ def main():
         x=ds_train,
         steps_per_epoch=len(ds_train),
         epochs=1,
-        #validation_data=ds_val_zip,
-        #validation_steps=len(ds_val_zip),
+        validation_data=ds_val,
+        validation_steps=len(ds_val),
         verbose=1
+    )
+
+    # TODO: necessário ver ainda se será um problema os warnings ao fazer o load_model 
+    
+    unet.save("./tmp/model/", save_format="tf")
+
+    new_model = load_model(
+        './tmp/model/', 
+        compile=False,
+        custom_objects={
+            "CNNBlock": CNNBlock,
+            "EncoderBlock": EncoderBlock,
+            "DecoderBlock": DecoderBlock,
+            "Unet": Unet, 
+        }
     )
 
 if __name__ == "__main__":

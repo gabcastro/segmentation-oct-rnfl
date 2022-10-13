@@ -19,8 +19,8 @@ class Unet(tf.keras.Model):
     https://www.tensorflow.org/guide/keras/custom_layers_and_models#the_model_class
     """
 
-    def __init__(self):
-        super(Unet, self).__init__()
+    def __init__(self, **kwargs):
+        super(Unet, self).__init__(**kwargs)
 
         self.encoder1 = EncoderBlock(32)
         self.encoder2 = EncoderBlock(64)
@@ -57,10 +57,10 @@ class Unet(tf.keras.Model):
         x = tf.keras.Input(shape=input_shape)
         return tf.keras.Model(inputs=[x], outputs=self.call(x))
 
-    def modelcheckpoint(self, filepath):
-        return tf.keras.callbacks.ModelCheckpoint(
-            filepath=filepath,
-            verbose=1,
-            save_best_only=True,
-            monitor="dice_coef"
-        )
+    def get_config(self):
+        config = super(Unet, self).get_config()
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)

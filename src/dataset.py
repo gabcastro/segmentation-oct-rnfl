@@ -2,7 +2,10 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
+from keras import layers
 from glob import glob
+
+AUTOTUNE = tf.data.AUTOTUNE
 
 class Dataset():
     """Expand the data to create a dataset"""
@@ -12,18 +15,27 @@ class Dataset():
         self.images, self.masks = self.load_data(data_dir)
         print(f'Loaded {len(self.images)} images, and {len(self.masks)} masks')
 
+        self.data_aug = tf.keras.Sequential([
+            layers.RandomFlip("horizontal"),
+            layers.RandomRotation(0.2),
+        ])
+
     def load_data(self, data_dir):
         images = sorted(glob(os.path.join(data_dir, "images/*.png")))
         masks = sorted(glob(os.path.join(data_dir, "masks/*.png")))
 
         return images, masks
 
-    def create_dataset(self, batch=8):
+    def create_dataset(self, batch=8, augment=False):
         ds = tf.data.Dataset.from_tensor_slices((self.images, self.masks))
         ds = ds.shuffle(buffer_size=1000)
         ds = ds.map(self.preprocess)
         ds = ds.batch(batch)
         ds = ds.prefetch(2)
+
+        if (augment):
+            ds = ds.map(lambda x, y: (self.data_aug(x, training=True), y), 
+                        num_parallel_calls=AUTOTUNE)
 
         return ds
 
@@ -62,5 +74,3 @@ class Dataset():
         x = x.astype(np.float32)
         
         return x
-
-    
