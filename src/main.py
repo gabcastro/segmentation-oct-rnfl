@@ -1,9 +1,11 @@
 from dataset import Dataset
 from unet import Unet
-from compile import Compile
+from compile import dice_coef, dice_loss
 
 import tensorflow as tf
 from keras.models import load_model
+from keras.callbacks import ReduceLROnPlateau
+from keras.optimizers import Adam
 
 import sys
 sys.path.insert(1, '/components')
@@ -13,6 +15,8 @@ from components.cnnblock import CNNBlock
 from components.decoderblock import DecoderBlock
 
 def main():
+
+    lr=1e-4
 
     ds = Dataset('../data/v2/L1/train')
     ds_train = ds.create_dataset(augment=True)
@@ -28,13 +32,15 @@ def main():
 
     unet.model(input_shape=shape).summary()
 
-    compile_methods = Compile()
-
     unet.compile(
-        optimizer=compile_methods.optimizer,
-        loss=compile_methods.loss,
-        metrics=compile_methods.all_metrics
+        optimizer=Adam(lr),
+        loss=dice_loss,
+        metrics=[dice_coef]
     )
+
+    callback = [
+        ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=1e-7, verbose=1),
+    ]
 
     history = unet.fit(
         x=ds_train,
@@ -42,23 +48,24 @@ def main():
         epochs=1,
         validation_data=ds_val,
         validation_steps=len(ds_val),
+        callbacks=callback,
         verbose=1
     )
 
     # TODO: necessário ver ainda se será um problema os warnings ao fazer o load_model 
     
-    unet.save("./tmp/model/", save_format="tf")
+    # unet.save("./tmp/model/", save_format="tf")
 
-    new_model = load_model(
-        './tmp/model/', 
-        compile=False,
-        custom_objects={
-            "CNNBlock": CNNBlock,
-            "EncoderBlock": EncoderBlock,
-            "DecoderBlock": DecoderBlock,
-            "Unet": Unet, 
-        }
-    )
+    # new_model = load_model(
+    #     './tmp/model/', 
+    #     compile=False,
+    #     custom_objects={
+    #         "CNNBlock": CNNBlock,
+    #         "EncoderBlock": EncoderBlock,
+    #         "DecoderBlock": DecoderBlock,
+    #         "Unet": Unet, 
+    #     }
+    # )
 
 if __name__ == "__main__":
     main()

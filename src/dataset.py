@@ -7,7 +7,7 @@ from glob import glob
 
 AUTOTUNE = tf.data.AUTOTUNE
 
-class Dataset():
+class Dataset:
     """Expand the data to create a dataset"""
 
     def __init__(self, 
