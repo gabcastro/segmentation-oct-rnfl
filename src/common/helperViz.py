@@ -44,5 +44,6 @@ class Utility:
             plt.plot(model_history.history[l])
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
+        plt.legend(loss, loc='upper left')
 
         plt.show()

@@ -1,6 +1,7 @@
 from dataset import Dataset
 from unet import Unet
 from compile import dice_coef, dice_loss
+from evaluate import Evaluate
 
 import tensorflow as tf
 from keras.models import load_model
@@ -16,56 +17,60 @@ from components.decoderblock import DecoderBlock
 
 def main():
 
-    lr=1e-4
+    running = False
 
-    ds = Dataset('../data/v2/L1/train')
-    ds_train = ds.create_dataset(augment=True)
+    if (running):
+        lr=1e-4
 
-    ds = Dataset('../data/v2/L1/validation')
-    ds_val = ds.create_dataset()
+        ds = Dataset('../data/v2/L1/train')
+        ds_train = ds.create_dataset(augment=True)
 
-    shape=(512, 512, 1)
-    input = tf.keras.Input(shape=shape)
+        ds = Dataset('../data/v2/L1/validation')
+        ds_val = ds.create_dataset()
 
-    unet = Unet()
-    unet(input)
+        shape=(512, 512, 1)
+        input = tf.keras.Input(shape=shape)
 
-    unet.model(input_shape=shape).summary()
+        unet = Unet()
+        unet(input)
 
-    unet.compile(
-        optimizer=Adam(lr),
-        loss=dice_loss,
-        metrics=[dice_coef]
-    )
+        unet.model(input_shape=shape).summary()
 
-    callback = [
-        ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=1e-7, verbose=1),
-    ]
+        unet.compile(
+            optimizer=Adam(lr),
+            loss=dice_loss,
+            metrics=[dice_coef]
+        )
 
-    history = unet.fit(
-        x=ds_train,
-        steps_per_epoch=len(ds_train),
-        epochs=1,
-        validation_data=ds_val,
-        validation_steps=len(ds_val),
-        callbacks=callback,
-        verbose=1
-    )
+        callback = [
+            ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=1e-7, verbose=1),
+        ]
 
-    # TODO: necessário ver ainda se será um problema os warnings ao fazer o load_model 
+        history = unet.fit(
+            x=ds_train,
+            steps_per_epoch=len(ds_train),
+            epochs=1,
+            validation_data=ds_val,
+            validation_steps=len(ds_val),
+            callbacks=callback,
+            verbose=1
+        )
     
-    # unet.save("./tmp/model/", save_format="tf")
+        unet.save("./tmp/model/", save_format="tf")
+    else:
+        unet = load_model(
+            './tmp/model/', 
+            compile=False,
+            custom_objects={
+                "CNNBlock": CNNBlock,
+                "EncoderBlock": EncoderBlock,
+                "DecoderBlock": DecoderBlock,
+                "Unet": Unet, 
+            }
+        )
 
-    # new_model = load_model(
-    #     './tmp/model/', 
-    #     compile=False,
-    #     custom_objects={
-    #         "CNNBlock": CNNBlock,
-    #         "EncoderBlock": EncoderBlock,
-    #         "DecoderBlock": DecoderBlock,
-    #         "Unet": Unet, 
-    #     }
-    # )
+    eval = Evaluate('../data/v2/L1/test', '../data/v2/L1/predicted')
+    eval.eval(unet)
 
 if __name__ == "__main__":
     main()

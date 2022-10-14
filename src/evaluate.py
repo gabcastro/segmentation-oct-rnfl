@@ -1,81 +1,72 @@
 import os
+import cv2
 import numpy as np
-import skimage.io as io
-import sklearn.metrics as sm
+from glob import glob
+from tqdm import tqdm
+from sklearn.metrics import f1_score, jaccard_score, precision_score, recall_score
 
 class Evaluate:
-    def __init__(self, directory, folders):
-        self.dir_grays = os.path.join(directory, folders[0])
-        self.dir_masks = os.path.join(directory, folders[1])
-        self.dir_pred = os.path.join(directory, folders[2])
+    def __init__(self, 
+                data_dir,
+                save_pred_dir):
+        self.images, self.masks = self.load_data(data_dir)
+        self.save_pred_dir = save_pred_dir
 
-        self.img_grays = self.getcontent(self.dir_grays)
-        self.img_masks = self.getcontent(self.dir_masks)
-        
-        self.prec_total=0
-        self.rec_total=0
-        self.acc_total=0
-        self.IoU_total=0
-        self.f1_score_total=0
+    def load_data(self, data_dir):
+        images = sorted(glob(os.path.join(data_dir, "images/*.png")))
+        masks = sorted(glob(os.path.join(data_dir, "masks/*.png")))
 
-    def getcontent(self, dir):
-        content = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
-        content = sorted(content)
+        return images, masks
 
-        return content
+    def save_results(self, image, mask, y_pred, save_dir):
+        mask = np.expand_dims(mask, axis=-1)
+        mask = np.concatenate([mask, mask, mask], axis=-1)
 
-    def labelvisualize(self, num_class, color_dict, img):
-        img = img[:,:,0] if len(img.shape) == 3 else img
-        img_out = np.zeros(img.shape + (3,))
-        for i in range(num_class):
-            img_out[img == i] = color_dict[i]
-      
-        return img_out
+        y_pred = np.expand_dims(y_pred, axis=-1)
+        y_pred = np.concatenate([y_pred, y_pred, y_pred], axis=-1)
+        y_pred = y_pred * 255
 
-    def saveimgs(self, 
-                 model_predict,
-                 flag_multi_class = False, 
-                 num_class = 2):
-        for i, item in enumerate(model_predict):
-            img = self.labelvisualize(num_class, COLOR_DICT, item) if flag_multi_class else item[:,:,0]
-            img[img > 0.1]=1
-            img[img <= 0.1]=0            
-            io.imsave(os.path.join(self.dir_pred, 'pred_' + self.img_grays[i]), img)   
+        line = np.ones((512, 10, 3)) * 255
 
-    def metric(self, model_predict):
-        for idx, img in enumerate(model_predict):
-            img = img[:,:,0]
-            print(os.path.join(self.dir_masks, self.img_masks[idx]))
-            mask = io.imread(os.path.join(self.dir_masks, self.img_masks[idx]), as_gray=True)
+        cat_images = np.concatenate([image, line, mask, line, y_pred], axis=1)
+        cv2.imwrite(save_dir, cat_images)
 
-            img1 = np.array(((img - np.min(img)) / np.ptp(img)) > 0.1).astype(float)
-            msk1 = np.array(((mask - np.min(mask))/ np.ptp(mask)) > 0.1).astype(float) 
+    def eval(self, model):
+        """Evaluate and save predictions from model trained"""
 
-            u, v = np.shape(msk1)
-            mask_list = np.reshape(msk1, (u*v,))
-            predicted_list = np.reshape(img1, (u*v,))
+        SCORE = []
+        for img_name, mask_name in tqdm(zip(self.images, self.masks), total=len(self.masks)):
+            name = img_name.split("/")[-1]
 
-            tn, fp, fn, tp = sm.confusion_matrix(mask_list, predicted_list, labels=[0,1]).ravel()
-            tn, fp, fn, tp = np.float64(tn), np.float64(fp), np.float64(fn), np.float64(tp)
+            image = cv2.imread(img_name, cv2.IMREAD_COLOR)
+            img = cv2.imread(img_name, cv2.IMREAD_GRAYSCALE)
+            img = img / 255.0
+            img = np.expand_dims(img, axis=0)
+            img = np.expand_dims(img, axis=-1)
+            
+            mask = cv2.imread(mask_name, cv2.IMREAD_GRAYSCALE)
+            
+            y_pred = model.predict(img, verbose=2)[0]
+            y_pred = np.squeeze(y_pred, axis=-1)
+            y_pred = y_pred >= 0.1
+            y_pred = y_pred.astype(np.int32)
+            
+            save_img_dir = os.path.join(self.save_pred_dir, name)
+            self.save_results(image, mask, y_pred, save_img_dir)
 
-            total = tp + fp + fn + tn
-            accuracy = (tp + tn) / total
-            prec = tp / (tp + fp)
-            rec = tp / (tp + fn)
-            IoU = tp / (tp + fp + fn)
-            f1_score = (2 * tp) / ((2 * tp) + fp + fn)
+            mask = mask / 255.0
+            mask = (mask > 0.5).astype(np.int32).flatten()
+            y_pred = y_pred.flatten()
 
-            self.acc_total = self.acc_total + accuracy
-            self.prec_total = self.prec_total + prec 
-            self.rec_total = self.rec_total + rec 
-            self.IoU_total = self.IoU_total + IoU
-            self.f1_score_total = self.f1_score_total + f1_score
+            f1_value = f1_score(mask, y_pred, labels=[0, 1], average="binary")
+            jac_value = jaccard_score(mask, y_pred, labels=[0, 1], average="binary")
+            recall_value = recall_score(mask, y_pred, labels=[0, 1], average="binary", zero_division=0)
+            precision_value = precision_score(mask, y_pred, labels=[0, 1], average="binary", zero_division=0)
+            SCORE.append([name, f1_value, jac_value, recall_value, precision_value])
 
-    def summary(self):
-        print(
-            "\n=> Precision \t : \t", self.prec_total/len(self.img_masks), 
-            "\n=> Recall \t : \t", self.rec_total/len(self.img_masks), 
-            "\n=> IoU \t\t : \t", self.IoU_total/len(self.img_masks), 
-            "\n=> Acc \t\t : \t", self.acc_total/len(self.img_masks), 
-            "\n=> F1 \t\t : \t", self.f1_score_total/len(self.img_masks)
-        )
+        score = [s[1:]for s in SCORE]
+        score = np.mean(score, axis=0)
+        print(f"F1: {score[0]:0.5f}")
+        print(f"Jaccard: {score[1]:0.5f}")
+        print(f"Recall: {score[2]:0.5f}")
+        print(f"Precision: {score[3]:0.5f}")
