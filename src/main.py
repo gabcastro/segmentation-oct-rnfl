@@ -22,8 +22,8 @@ def main():
     if (running):
         lr=1e-4
 
-        ds = Dataset('../data/v2/L1/train')
-        ds_train = ds.create_dataset(augment=True)
+        ds = Dataset('../data/v2/L1/train', augment=True)
+        ds_train = ds.create_dataset()
 
         ds = Dataset('../data/v2/L1/validation')
         ds_val = ds.create_dataset()

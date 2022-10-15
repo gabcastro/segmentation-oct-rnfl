@@ -48,7 +48,7 @@ class Evaluate:
             
             y_pred = model.predict(img, verbose=2)[0]
             y_pred = np.squeeze(y_pred, axis=-1)
-            y_pred = y_pred >= 0.1
+            y_pred = y_pred >= 0.5
             y_pred = y_pred.astype(np.int32)
             
             save_img_dir = os.path.join(self.save_pred_dir, name)
@@ -66,7 +66,7 @@ class Evaluate:
 
         score = [s[1:]for s in SCORE]
         score = np.mean(score, axis=0)
-        print(f"F1: {score[0]:0.5f}")
+        print(f"\n\nF1: {score[0]:0.5f}")
         print(f"Jaccard: {score[1]:0.5f}")
         print(f"Recall: {score[2]:0.5f}")
         print(f"Precision: {score[3]:0.5f}")
