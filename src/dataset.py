@@ -3,19 +3,25 @@ import cv2
 import numpy as np
 import tensorflow as tf
 from glob import glob
-from augment import flip, rotation_zoom, shift
+from augment import *
 
 class Dataset:
     """Expand the data to create a dataset"""
 
     def __init__(self, 
                 data_dir,
-                augment=False):
+                augment=False,
+                aug_read_only=False):
         self.images, self.masks = self.load_data(data_dir, "images/*.png", "masks/*.png")
 
         if (augment):
             self.augment(data_dir)
-        
+
+        if (augment or aug_read_only):
+            images_aug, masks_aug = self.load_data(data_dir, "images_aug/*.png", "masks_aug/*.png")
+            self.images = sorted(self.images + images_aug)
+            self.masks = sorted(self.masks + masks_aug)
+
         print(f'Loaded a total of {len(self.images)} images, and {len(self.masks)} masks')
         
 
@@ -26,18 +32,11 @@ class Dataset:
 
         self.create_augmentation(data_dir, content)
 
-        images_aug, masks_aug = self.load_data(data_dir, "images_aug/*.png", "masks_aug/*.png")
-
-        self.images = sorted(self.images + images_aug)
-        self.masks = sorted(self.masks + masks_aug)
-
-
     def load_data(self, data_dir, folder_img, folder_mask):
         images = sorted(glob(os.path.join(data_dir, folder_img)))
         masks = sorted(glob(os.path.join(data_dir, folder_mask)))
 
         return images, masks
-
 
     def create_augmentation(self, root_dir, lists):
         folders = ["images_aug/", "masks_aug/"]
@@ -64,6 +63,12 @@ class Dataset:
                     ops.append((self.get_img_dir(name, "shift_r_", folder_dir), shift(img, 35, 0)))
                     ops.append((self.get_img_dir(name, "shift_flip_l_", folder_dir), shift(i_flip[1], -35, 0)))
                     ops.append((self.get_img_dir(name, "shift_flip_r_", folder_dir), shift(i_flip[1], 35, 0)))
+
+                    # as this pre-processing is about change color/iluminance, masks won't change
+                    if idx == 0:
+                        ops.append((self.get_img_dir(name, "ilumi_normalize_", folder_dir), ilumi_normalization(img)))
+                    else:
+                        ops.append((self.get_img_dir(name, "ilumi_normalize_", folder_dir), img))
 
                     self.save_augmented_img(ops)
                 except:

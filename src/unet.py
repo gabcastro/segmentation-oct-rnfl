@@ -22,6 +22,7 @@ class Unet(tf.keras.Model):
     def __init__(self, **kwargs):
         super(Unet, self).__init__(**kwargs)
 
+        self.encoder0 = EncoderBlock(16)
         self.encoder1 = EncoderBlock(32)
         self.encoder2 = EncoderBlock(64)
         self.encoder3 = EncoderBlock(128)
@@ -33,11 +34,13 @@ class Unet(tf.keras.Model):
         self.decoder2 = DecoderBlock(128)
         self.decoder3 = DecoderBlock(64)
         self.decoder4 = DecoderBlock(32)
+        self.decoder5 = DecoderBlock(16)
 
         self.out = Conv2D(1, 1, activation='sigmoid')
         
     def call(self, inputs):
-        e1x, e1y = self.encoder1(inputs)
+        e0x, e0y = self.encoder0(inputs)
+        e1x, e1y = self.encoder1(e0y)
         e2x, e2y = self.encoder2(e1y, 0.2)
         e3x, e3y = self.encoder3(e2y, 0.3)
         e4x, e4y = self.encoder4(e3y, 0.7)
@@ -48,8 +51,9 @@ class Unet(tf.keras.Model):
         d2 = self.decoder2(d1, e3x)
         d3 = self.decoder3(d2, e2x)
         d4 = self.decoder4(d3, e1x)
+        d5 = self.decoder5(d4, e0x)
 
-        o = self.out(d4)
+        o = self.out(d5)
 
         return o
 

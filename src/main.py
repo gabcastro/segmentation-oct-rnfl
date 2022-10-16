@@ -15,6 +15,9 @@ from components.encoderblock import EncoderBlock
 from components.cnnblock import CNNBlock
 from components.decoderblock import DecoderBlock
 
+import cv2
+import numpy as np
+
 def main():
 
     running = False
@@ -22,7 +25,7 @@ def main():
     if (running):
         lr=1e-4
 
-        ds = Dataset('../data/v2/L1/train', augment=True)
+        ds = Dataset('../data/v2/L1/train', augment=True, aug_read_only=True)
         ds_train = ds.create_dataset()
 
         ds = Dataset('../data/v2/L1/validation')
@@ -56,10 +59,10 @@ def main():
             verbose=1
         )
     
-        unet.save("./tmp/model/", save_format="tf")
+        unet.save("../tmp/model/", save_format="tf")
     else:
         unet = load_model(
-            './tmp/model/', 
+            '../tmp/model/', 
             compile=False,
             custom_objects={
                 "CNNBlock": CNNBlock,
