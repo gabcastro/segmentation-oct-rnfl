@@ -1,3 +1,29 @@
-v1: first version, using flow_from_directory (Deprecated) and the follow folder structure:
+## v1 
 
-v2: using tf.keras.utils.image_dataset_from_directory, with the follow structure:
+Using `flow_from_directory` (Deprecated)
+
+## v2
+
+Loading images from directory in an array and using `from_tensor_slices` to creat the dataset. 
+Images also are augmented (all images are used).
+
+    Split:
+        - train: 76
+        - test: 38
+        - validation: 20
+
+    Augmented:
+        - horizontal flip
+        - rotation + zoom in (both sides)
+        - zoom in
+        - horizontal flip + zoom in (both sides)
+        - shift original image (40px each side)
+        - shift + horizontal flip (40px each side)
+
+## v3
+
+Using the same code used in v2, and with data augmented. 
+
+**What is different?** The proccess to choose images.
+Now was selected the better images (manually) and put all together.
+The data have the total of 80 images and the split was did on code: the first 70% to train, follow by 15% to test and 15% to validation.
