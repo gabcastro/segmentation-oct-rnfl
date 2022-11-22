@@ -27,3 +27,7 @@ Using the same code used in v2, and with data augmented.
 **What is different?** The proccess to choose images.
 Now was selected the better images (manually) and put all together.
 The data have the total of 80 images and the split was did on code: the first 70% to train, follow by 15% to test and 15% to validation.
+
+## v4
+
+Almost the same as v3, but using 77 images, and layers now was completed fill.

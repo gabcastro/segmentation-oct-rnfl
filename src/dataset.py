@@ -46,14 +46,14 @@ class Dataset:
             return x, y
 
         image, mask = tf.numpy_function(f, [x, y], [tf.float32, tf.float32])
-        image.set_shape([512, 512, 1])
-        mask.set_shape([512, 512, 1])
+        image.set_shape([640, 640, 1])
+        mask.set_shape([640, 640, 1])
 
         return image, mask
 
     def read_mask(self, path):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        x = cv2.resize(x, (512, 512))
+        x = cv2.resize(x, (640, 640))
         x = x / 255.0
         x = np.expand_dims(x, axis=-1)
         x = x.astype(np.float32)
@@ -62,7 +62,7 @@ class Dataset:
 
     def read_image(self, path):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        x = cv2.resize(x, (512, 512))
+        x = cv2.resize(x, (640, 640))
         x = x / 255.0
         x = np.expand_dims(x, axis=-1)
         x = x.astype(np.float32)

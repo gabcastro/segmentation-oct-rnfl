@@ -18,7 +18,7 @@ class Evaluate:
 
         return images, masks
 
-    def save_results(self, image, mask, y_pred, save_dir):
+    def save_results(self, image, mask, y_pred, save_dir, save_concat_dir):
         mask = np.expand_dims(mask, axis=-1)
         mask = np.concatenate([mask, mask, mask], axis=-1)
 
@@ -26,10 +26,12 @@ class Evaluate:
         y_pred = np.concatenate([y_pred, y_pred, y_pred], axis=-1)
         y_pred = y_pred * 255
 
-        line = np.ones((512, 10, 3)) * 255
+        line = np.ones((640, 10, 3)) * 255
 
         cat_images = np.concatenate([image, line, mask, line, y_pred], axis=1)
-        cv2.imwrite(save_dir, cat_images)
+        cv2.imwrite(save_concat_dir, cat_images)
+
+        cv2.imwrite(save_dir, y_pred)
 
     def eval(self, model):
         """Evaluate and save predictions from model trained"""
@@ -52,7 +54,8 @@ class Evaluate:
             y_pred = y_pred.astype(np.int32)
             
             save_img_dir = os.path.join(self.save_pred_dir, name)
-            self.save_results(image, mask, y_pred, save_img_dir)
+            save_img_concat_dir = os.path.join(self.save_pred_dir, "concat", name)
+            self.save_results(image, mask, y_pred, save_img_dir, save_img_concat_dir)
 
             mask = mask / 255.0
             mask = (mask > 0.5).astype(np.int32).flatten()

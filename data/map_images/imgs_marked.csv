@@ -1,8 +1,8 @@
 name;marked
-0012_OD_ONH.png;Y
-0012_OE_ONH.png;Y
-0019_OD_ONH.png;Y
-0019_OE_ONH.png;Y
+012_OD_ONH.png;Y
+012_OE_ONH.png;Y
+019_OD_ONH.png;Y
+019_OE_ONH.png;Y
 001_OD_ONH.png;Y
 001_OE_ONH.png;Y
 004_OD_ONH.png;Y
@@ -55,8 +55,8 @@ name;marked
 031_OE_ONH.png;N
 032_OD_ONH.png;Y
 032_OE_ONH.png;N
-033_OD_ONH.png;Y
-033_OE_ONH.png;Y
+033_OD_ONH.png;N
+033_OE_ONH.png;N
 034_OD_ONH.png;N
 034_OE_ONH.png;Y
 035_OD_ONH.png;Y
@@ -126,7 +126,7 @@ name;marked
 076_OD_ONH.png;Y
 076_OE_ONH.png;N
 077_OD_ONH.png;Y
-077_OE_ONH.png;Y
+077_OE_ONH.png;N
 078_OD_ONH.png;N
 078_OE_ONH.png;Y
 079_OD_ONH.png;Y
