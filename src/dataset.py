@@ -34,6 +34,15 @@ class Dataset:
         ds = ds.prefetch(2)
 
         return ds
+    
+    def create_dataset(self, images, masks, batch=8):
+        ds = tf.data.Dataset.from_tensor_slices((images, masks))
+        ds = ds.shuffle(buffer_size=1000)
+        ds = ds.map(self.preprocess)
+        ds = ds.batch(batch)
+        ds = ds.prefetch(2)
+
+        return ds
 
     def preprocess(self, x, y):
         def f(x, y):

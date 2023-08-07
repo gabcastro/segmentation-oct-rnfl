@@ -72,7 +72,7 @@ def main():
             }
         )
 
-    eval = Evaluate('../data/v2/L1/test', '../data/v2/L1/predicted')
+    eval = Evaluate('../data/v4/L1/test', '../data/v4/L1/predicted')
     eval.eval(unet)
 
 if __name__ == "__main__":

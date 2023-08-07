@@ -16,7 +16,7 @@ def flip(img, orientation):
 
 def rotation_zoom(img, scale, angle=0):
     """Applies a rotation or zoom operation in an image.
-    To rotatation the parameter `angle` is more important than `scale`.
+    To rotatation, the parameter `angle` is more important than `scale`.
     For scale, `angle` is zero.
     """
     (h, w) = img.shape[:2]

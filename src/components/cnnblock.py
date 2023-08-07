@@ -12,15 +12,15 @@ class CNNBlock(Layer):
         self.kernel_size = kernel_size
 
         if params_args is None:
-            params = dict (
+            self.params_args = dict (
                 padding='same',
                 kernel_initializer='he_normal',
                 dilation_rate=1
             )
         else:
-            params = params_args
+            self.params_args = params_args
 
-        self.conv = Conv2D(filters=self.out_channel, kernel_size=self.kernel_size, **params)
+        self.conv = Conv2D(filters=self.out_channel, kernel_size=self.kernel_size, **self.params_args)
         self.bn = BatchNormalization()
 
     def call(self, input_tensor):
