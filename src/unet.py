@@ -27,11 +27,11 @@ class Unet(tf.keras.Model):
         self.encoder2 = EncoderBlock(64)
         self.encoder3 = EncoderBlock(128)
         self.encoder4 = EncoderBlock(256)
-        # self.encoder5 = EncoderBlock(512)
+        self.encoder5 = EncoderBlock(512)
         
-        self.bottleneck = CNNBlock(512)
+        self.bottleneck = CNNBlock(1024)
 
-        # self.decoder0 = DecoderBlock(512)
+        self.decoder0 = DecoderBlock(512)
         self.decoder1 = DecoderBlock(256)
         self.decoder2 = DecoderBlock(128)
         self.decoder3 = DecoderBlock(64)
@@ -46,12 +46,12 @@ class Unet(tf.keras.Model):
         e2x, e2y = self.encoder2(e1y, 0.3)
         e3x, e3y = self.encoder3(e2y, 0.5)
         e4x, e4y = self.encoder4(e3y, 0.7)
-        # e5x, e5y = self.encoder5(e4y)
+        e5x, e5y = self.encoder5(e4y)
 
-        b = self.bottleneck(e4y)
+        b = self.bottleneck(e5y)
 
-        # d0 = self.decoder0(b, e5x)
-        d1 = self.decoder1(b, e4x)
+        d0 = self.decoder0(b, e5x)
+        d1 = self.decoder1(d0, e4x)
         d2 = self.decoder2(d1, e3x)
         d3 = self.decoder3(d2, e2x)
         d4 = self.decoder4(d3, e1x)

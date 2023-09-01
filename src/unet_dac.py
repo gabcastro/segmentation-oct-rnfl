@@ -47,9 +47,9 @@ class UnetDac(tf.keras.Model):
     def call(self, inputs):
         e0x, e0y = self.encoder0(inputs)
         e1x, e1y = self.encoder1(e0y)
-        e2x, e2y = self.encoder2(e1y, 0.3)
-        e3x, e3y = self.encoder3(e2y, 0.5)
-        e4x, e4y = self.encoder4(e3y, 0.7)
+        e2x, e2y = self.encoder2(e1y)
+        e3x, e3y = self.encoder3(e2y)
+        e4x, e4y = self.encoder4(e3y)
         
         dac = self.dac_block(e4y)
 

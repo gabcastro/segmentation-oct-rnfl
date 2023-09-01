@@ -7,6 +7,8 @@ class DACBlock(Layer):
     def __init__(self, out_channel, **kwargs):
         super(DACBlock, self).__init__(**kwargs)
 
+        self.out_channel = out_channel
+
         params_args_1 = self.get_parameters(param_kernal_size=3, param_dilation_rate=1)
         params_args_2 = self.get_parameters(param_kernal_size=3, param_dilation_rate=3)
         params_args_3 = self.get_parameters(param_kernal_size=1, param_dilation_rate=1)

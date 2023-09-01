@@ -10,14 +10,20 @@ class Dataset:
     def __init__(self, 
                 data_dir,
                 aug_read=False):
+        
+        length_imgs = []
+
         self.images, self.masks = self.load_data(data_dir, "images/*.png", "masks/*.png")
+        length_imgs.append(len(self.images))
 
         if (aug_read):
             images_aug, masks_aug = self.load_data(data_dir, "images_aug/*.png", "masks_aug/*.png")
+            length_imgs.append(len(images_aug))
             self.images = sorted(self.images + images_aug)
             self.masks = sorted(self.masks + masks_aug)
 
-        print(f'Loaded a total of {len(self.images)} images, and {len(self.masks)} masks')
+        print(f'To datadir: {data_dir} was loaded a total of {str(length_imgs[0])} images and masks')
+        if (aug_read): print(f'Loaded a total of {str(length_imgs[1])} augmented images')
         
 
     def load_data(self, data_dir, folder_img, folder_mask):
@@ -35,7 +41,8 @@ class Dataset:
 
         return ds
     
-    def create_dataset(self, images, masks, batch=8):
+    # using with cross-validation
+    def create_dataset_cv(self, images, masks, batch=8):
         ds = tf.data.Dataset.from_tensor_slices((images, masks))
         ds = ds.shuffle(buffer_size=1000)
         ds = ds.map(self.preprocess)
